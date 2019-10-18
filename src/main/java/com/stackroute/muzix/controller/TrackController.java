@@ -14,14 +14,14 @@ import java.util.List;
 @RequestMapping(value="api/v1")
 public class TrackController {
 
-    TrackService trackService;
+    private TrackService trackService;
+    private ResponseEntity responseEntity;
 
     public TrackController(TrackService trackService) {
         this.trackService = trackService;
     }
     @PostMapping("track")
     public ResponseEntity<?> saveTrack(@RequestBody Track track) {
-        ResponseEntity responseEntity;
         try{
             trackService.saveTrack(track);
             responseEntity=new ResponseEntity<String>("Successfully created", HttpStatus.CREATED);
@@ -38,12 +38,17 @@ public class TrackController {
 
     @GetMapping("track/{name}")
     public ResponseEntity<?> trackByName(@PathVariable("name") String trackName) {
-        return new ResponseEntity<List<Track>>(trackService.trackByName(trackName),HttpStatus.OK);
+        try{
+            trackService.trackByName(trackName);
+            responseEntity=new ResponseEntity<List<Track>>(trackService.trackByName(trackName),HttpStatus.OK);
+        } catch (TrackNotFoundException ex) {
+            responseEntity=new ResponseEntity<String>(ex.getMessage(), HttpStatus.CONFLICT);
+        }
+        return responseEntity;
     }
 
     @DeleteMapping("track/{id}")
     public ResponseEntity<?> deleteTrack(@PathVariable("id") int trackId) {
-        ResponseEntity responseEntity;
         try{
             trackService.deleteTrack(trackId);
             responseEntity=new ResponseEntity<String>("Successfully deleted", HttpStatus.ACCEPTED);
@@ -55,7 +60,6 @@ public class TrackController {
 
     @PutMapping("track/{id}/{comments}")
     public ResponseEntity<?> updateComments(@PathVariable("id") int trackId,@PathVariable("comments") String newComments) {
-        ResponseEntity responseEntity;
         try{
             trackService.updateComments(trackId,newComments);
             responseEntity=new ResponseEntity<String>("Successfully updated", HttpStatus.OK);
