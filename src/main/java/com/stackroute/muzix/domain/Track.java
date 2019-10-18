@@ -11,7 +11,6 @@ import javax.persistence.Id;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Track {
     @Id
     private int trackId;
